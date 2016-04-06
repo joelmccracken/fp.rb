@@ -20,17 +20,43 @@ Or install it yourself as:
 
 ## Usage
 
-## The FP::Fn Base Class
+### The FP::Fn Base Class
+
+The FP::Fn class simulates closure-like behavior with classes and familiar class syntax. It eliminates
+the boilerplate that is otherwise necessary when using classes in a functional style.
 
 This class provides a way to emulate familiar patterns from functional languages. In most functional
-languages,
-it is common to define helper functions within the body of functions. These functions have access to
-the arguments from the original function, as these are part of the environment in which they are defined.
+languages, it is common to define functions within the body of other functions to help
+with computation.
+These inner functions have access to
+the arguments that outer function are called with, as these are part of the environment in which they are defined.
 
+Lets look at an example:
 Imagine that for some reason you had to implement exponentiation yourself, and only had addition to work with.
 Since multiplication can be define as a series of additions, and exponentiation is defined as a series of
 multiplications, you can use addition and recursive function calls to solve the problem.
 
+In Ruby, the closest example would look something like this:
+
+    def slow_exponentiate(x, y)
+      multiply_x = ->(num_left) {
+        if num_left > 0
+          x + multiply_x.(num_left - 1)
+        else
+          0
+        end
+      }
+
+      exponentiate_x = ->(num_left) {
+        if num_left > 0
+          multiply_x.(exponentiate_x.(num_left - 1))
+        else
+          1
+        end
+      }
+
+      exponentiate_x.(y)
+    end
 
 In Haskell, this solution would look something like this:
 
@@ -63,34 +89,14 @@ Here is similar code in JavaScript:
       return exponentiate(y);
     }
 
-In Ruby, the closest example would look something like this:
-
-    def slow_exponentiate(x, y)
-      multiply_x = ->(num_left) {
-        if num_left > 0
-          x + multiply_x.(num_left - 1)
-        else
-          0
-        end
-      }
-
-      exponentiate_x = ->(num_left) {
-        if num_left > 0
-          multiply_x.(exponentiate_x.(num_left - 1))
-        else
-          1
-        end
-      }
-
-      exponentiate_x.(y)
-    end
-
 
 The thing is, many would consider this code to be ugly.
 The FP::Fn gives you the best of both worlds: the familiar syntax of
 Ruby with this powerful functional idiom.
 
     class SlowExponentiate < FP::Fn
+      arguments :x, :y, by: :position
+
       def call(x, y)
         exponentiate_x(y)
       end
@@ -116,6 +122,50 @@ Ruby with this powerful functional idiom.
     SlowExponentiate.(2, 0) # => 1
     SlowExponentiate.(2, 1) # => 2
     SlowExponentiate.(2, 8) # => 256
+
+What *exactly* does it do? Well, it:
+
+- Creates class methods that correspond to public instance methods that
+  creates a `new` instance and calls the method on that instance, returning the result.
+
+- Provides an `arguments` class method to specify the arguments that will become part of this "closure".
+
+Doing the same thing with classes normally would look something like this:
+
+    class SlowExponentiate
+      attr_reader :x, :y
+
+      def initialize(x, y)
+        @x = x
+        @y = y
+      end
+
+      def call
+        exponentiate_x(y)
+      end
+
+      private
+      def exponentiate_x(num_left)
+        if num_left > 0
+          multiply_x(exponentiate_x(num_left - 1))
+        else
+          1
+        end
+      end
+
+      def multiply_x(num_left)
+        if num_left > 0
+          x + multiply_x(num_left-1)
+        else
+          0
+        end
+      end
+    end
+
+    SlowExponentiate.new(2, 8).call # => 256
+
+Over time, the initialization overhead adds up, slowly making it harder to add more functionality to your code. Additionally, there are many different ways
+to write above code in pure Ruby, each with different tradeoffs.
 
 ## Development
 

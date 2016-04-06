@@ -3,7 +3,6 @@ require 'test_helper'
 describe FP::Fn do
   it "creates accessors for arguments that may be used for parameters" do
     math_calc_by_name = Class.new(FP::Fn) do
-
       arguments :a, :b, by: :name
 
       def call(c, d)
