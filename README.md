@@ -38,6 +38,7 @@ multiplications, you can use addition and recursive function calls to solve the 
 
 In Ruby, the closest example would look something like this:
 
+````ruby
     def slow_exponentiate(x, y)
       multiply_x = ->(num_left) {
         if num_left > 0
@@ -57,18 +58,21 @@ In Ruby, the closest example would look something like this:
 
       exponentiate_x.(y)
     end
-
+````
 In Haskell, this solution would look something like this:
 
+````haskell
     slowExponentiate x y =
       let exponentiate_x 0 = 1
           exponentiate_x num_left = multiply_x(exponentiate_x(num_left - 1))
           multiply_x 0 = 0
           multiply_x num_left = x + multiply_x(num_left - 1)
       in exponentiate_x y
+````
 
 Here is similar code in JavaScript:
 
+````javascript
     function slowExponentiate(x, y) {
       var multiplyX = function(num_left) {
         if(num_left > 0) {
@@ -88,12 +92,13 @@ Here is similar code in JavaScript:
 
       return exponentiate(y);
     }
-
+````
 
 The thing is, many would consider this code to be ugly.
 The FP::Fn gives you the best of both worlds: the familiar syntax of
 Ruby with this powerful functional idiom.
 
+````ruby
     class SlowExponentiate < FP::Fn
       arguments :x, :y, by: :position
 
@@ -122,6 +127,7 @@ Ruby with this powerful functional idiom.
     SlowExponentiate.(2, 0) # => 1
     SlowExponentiate.(2, 1) # => 2
     SlowExponentiate.(2, 8) # => 256
+````
 
 What *exactly* does it do? Well, it:
 
@@ -132,6 +138,7 @@ What *exactly* does it do? Well, it:
 
 Doing the same thing with classes normally would look something like this:
 
+````ruby
     class SlowExponentiate
       attr_reader :x, :y
 
@@ -163,6 +170,7 @@ Doing the same thing with classes normally would look something like this:
     end
 
     SlowExponentiate.new(2, 8).call # => 256
+````
 
 Over time, the initialization overhead adds up, slowly making it harder to add more functionality to your code. Additionally, there are many different ways
 to write above code in pure Ruby, each with different tradeoffs.
