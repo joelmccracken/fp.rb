@@ -5,7 +5,7 @@ describe FP::Fn do
     math_calc_by_name = Class.new(FP::Fn) do
       arguments :a, :b, by: :name
 
-      def call(c, d)
+      def call
         pm(a) + pm(b)
       end
 
