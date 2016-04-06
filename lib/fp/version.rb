@@ -1,3 +1,3 @@
-module Fp
+module FP
   VERSION = "0.1.0"
 end
